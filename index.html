@@ -5,160 +5,209 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hustle Ambition Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://js.stripe.com/v3/"></script>
 <style>
-  body {
+  /* Global Styles */
+  body, html {
     margin: 0;
+    padding: 0;
     font-family: 'Montserrat', sans-serif;
-    background-color: #fff;
+    background: #fff;
     color: #000;
+    overflow-x: hidden;
   }
+  a { text-decoration: none; color: inherit; }
+  button { cursor: pointer; }
 
+  /* Header */
   header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     border-bottom: 2px solid #000;
-    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1000;
   }
+  .logo { font-weight: 700; font-size: 1.5rem; }
+  .nav-buttons { display: flex; gap: 1rem; align-items: center; }
+  .nav-buttons button { background: none; border: none; font-size: 1.2rem; }
 
-  .hamburger {
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-
-  h1 {
-    margin: 0;
-    font-weight: 700;
-  }
-
-  main {
-    display: grid;
-    gap: 2rem;
-    padding: 2rem;
-    max-width: 1200px;
-    margin: auto;
-  }
-
-  .product-card {
-    border: 1px solid #000;
-    padding: 1rem;
-    text-align: center;
-    border-radius: 8px;
-  }
-
-  .product-card img {
-    max-width: 100%;
-    border-radius: 4px;
-  }
-
-  .product-card h2 {
-    margin: 0.5rem 0;
-    font-size: 1.2rem;
-  }
-
-  .product-card p {
-    margin: 0.5rem 0;
-    font-weight: bold;
-  }
-
-  .buy-button {
-    background-color: #000;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-  }
-
-  footer {
-    text-align: center;
+  /* Overlay Menus */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(255,255,255,0.95);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
   }
+  .overlay.active { transform: translateX(0); }
+  .overlay .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .overlay .overlay-header .logo { font-size: 1.5rem; font-weight: 700; }
+  .overlay button.close-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; }
 
+  .overlay nav { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
+  .overlay nav a { font-weight: 600; font-size: 1.1rem; }
+
+  /* Currency Switcher */
+  .currency-selector { margin-bottom: 2rem; }
+  .currency-selector label { font-weight: 600; margin-right: 0.5rem; }
+  .currency-selector select { padding: 0.3rem 0.5rem; font-size: 1rem; }
+
+  /* Instagram Button */
   .instagram-button {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     text-decoration: none;
-    background-color: #000;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    color: #000;
     font-weight: bold;
+    transition: transform 0.2s ease;
   }
+  .instagram-button svg { width: 20px; height: 20px; fill: #000; }
+  .instagram-button:hover { transform: scale(1.1); }
 
-  .instagram-button svg {
-    width: 20px;
-    height: 20px;
-    fill: #fff;
+  /* Main Content / Products */
+  main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+    display: grid;
+    gap: 2rem;
   }
+  .product-card {
+    text-align: center;
+  }
+  .product-card img { width: 100%; border-radius: 8px; }
+  .product-card p { font-weight: bold; margin-top: 0.5rem; font-size: 1.1rem; }
+  .product-card a {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #000;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+  .product-card a:hover { background: #333; }
 
-  @media (min-width: 768px) {
-    main {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
+  @media(min-width: 768px){ main { grid-template-columns: repeat(2,1fr); } }
+  @media(min-width: 1024px){ main { grid-template-columns: repeat(3,1fr); } }
 
-  @media (min-width: 1024px) {
-    main {
-      grid-template-columns: repeat(3, 1fr);
-    }
+  /* Footer */
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-top: 2px solid #000;
+    margin-top: 2rem;
   }
+  .payment-icons img { height: 25px; margin-left: 0.5rem; }
+
+  /* Cart Overlay */
+  .cart-overlay { display: flex; flex-direction: column; }
+  .cart-items { flex: 1; overflow-y: auto; margin-bottom: 1rem; }
+  .cart-item { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+  .cart-item p { margin: 0; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="hamburger">☰</div>
-  <h1>Hustle Ambition</h1>
-  <div></div>
+  <div class="logo">Hustle Ambition</div>
+  <div class="nav-buttons">
+    <button id="search-btn">🔍</button>
+    <button id="cart-btn">🛒</button>
+    <button id="account-btn">☰</button>
+  </div>
 </header>
 
+<!-- Account Overlay -->
+<div class="overlay" id="account-overlay">
+  <div class="overlay-header">
+    <div class="logo">Hustle Ambition</div>
+    <button class="close-btn" id="close-account">✖</button>
+  </div>
+  <nav>
+    <a href="hustleambition.shop/pages/faq">FAQ</a>
+  </nav>
+  <div class="currency-selector">
+    <label for="currency">Currency:</label>
+    <select id="currency">
+      <option value="USD" selected>USD</option>
+      <option value="EUR">EUR</option>
+      <option value="GBP">GBP</option>
+      <option value="JPY">JPY</option>
+    </select>
+  </div>
+  <a class="instagram-button" href="https://www.instagram.com/h" target="_blank">
+    <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 190.5c-41.4 0-75.1-33.7-75.1-75.1s33.7-75.1 75.1-75.1 75.1 33.7 75.1 75.1-33.7 75.1-75.1 75.1zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-.1-54.3-44.2-98.3-98.5-98.5H98.5C44.2 65.9.1 110 0 164.3v183.4c.1 54.3 44.2 98.3 98.5 98.5h183.4c54.3-.1 98.4-44.2 98.5-98.5V164.3zM398.8 347c-.1 41.3-33.6 74.8-74.9 74.9H124.1c-41.3-.1-74.8-33.6-74.9-74.9V164.1c.1-41.3 33.6-74.8 74.9-74.9h199.8c41.3.1 74.8 33.6 74.9 74.9V347z"/></svg>
+    Instagram
+  </a>
+</div>
+
+<!-- Cart Overlay -->
+<div class="overlay" id="cart-overlay">
+  <div class="overlay-header">
+    <div class="logo">Cart</div>
+    <button class="close-btn" id="close-cart">✖</button>
+  </div>
+  <div class="cart-items">
+    <div class="cart-item">
+      <p>Hoodie</p>
+      <p>$70</p>
+    </div>
+  </div>
+  <button class="buy-button" onclick="window.location.href='hustleambitoon.shop/products/hoodie'">Checkout</button>
+</div>
+
 <main>
-  <!-- Product 1 -->
+  <!-- Product Example -->
   <div class="product-card">
-    <img src="https://via.placeholder.com/300x300.png?text=Product+1" alt="Product 1">
-    <h2>Product 1</h2>
-    <p>$29.99</p>
-    <button class="buy-button" data-session-id="YOUR_STRIPE_SESSION_ID">Buy Now</button>
-  </div>
-
-  <!-- Product 2 -->
-  <div class="product-card">
-    <img src="https://via.placeholder.com/300x300.png?text=Product+2" alt="Product 2">
-    <h2>Product 2</h2>
-    <p>$39.99</p>
-    <button class="buy-button" data-session-id="YOUR_STRIPE_SESSION_ID">Buy Now</button>
-  </div>
-
-  <!-- Product 3 -->
-  <div class="product-card">
-    <img src="https://via.placeholder.com/300x300.png?text=Product+3" alt="Product 3">
-    <h2>Product 3</h2>
-    <p>$49.99</p>
-    <button class="buy-button" data-session-id="YOUR_STRIPE_SESSION_ID">Buy Now</button>
+    <img src="https://via.placeholder.com/300x300.png?text=Hoodie" alt="Hoodie">
+    <p>$70</p>
+    <a href="hustleambitoon.shop/products/hoodie">View Product</a>
   </div>
 </main>
 
 <footer>
-  <a class="instagram-button" href="https://www.instagram.com/h" target="_blank">
-    <!-- Instagram SVG icon -->
-    <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 190.5c-41.4 0-75.1-33.7-75.1-75.1s33.7-75.1 75.1-75.1 75.1 33.7 75.1 75.1-33.7 75.1-75.1 75.1zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-.1-54.3-44.2-98.3-98.5-98.5H98.5C44.2 65.9.1 110 0 164.3v183.4c.1 54.3 44.2 98.3 98.5 98.5h183.4c54.3-.1 98.4-44.2 98.5-98.5V164.3zM398.8 347c-.1 41.3-33.6 74.8-74.9 74.9H124.1c-41.3-.1-74.8-33.6-74.9-74.9V164.1c.1-41.3 33.6-74.8 74.9-74.9h199.8c41.3.1 74.8 33.6 74.9 74.9V347z"/></svg>
-    Instagram
-  </a>
+  <div>© 2025 HUSTLE AMBITION</div>
+  <div style="display:flex; align-items:center; gap:1rem;">
+    <a class="instagram-button" href="https://www.instagram.com/h" target="_blank">
+      <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 190.5c-41.4 0-75.1-33.7-75.1-75.1s33.7-75.1 75.1-75.1 75.1 33.7 75.1 75.1-33.7 75.1-75.1 75.1zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-.1-54.3-44.2-98.3-98.5-98.5H98.5C44.2 65.9.1 110 0 164.3v183.4c.1 54.3 44.2 98.3 98.5 98.5h183.4c54.3-.1 98.4-44.2 98.5-98.5V164.3zM398.8 347c-.1 41.3-33.6 74.8-74.9 74.9H124.1c-41.3-.1-74.8-33.6-74.9-74.9V164.1c.1-41.3 33.6-74.8 74.9-74.9h199.8c41.3.1 74.8 33.6 74.9 74.9V347z"/></svg>
+    </a>
+    <div class="payment-icons">
+      <img src="https://via.placeholder.com/40x25?text=V" alt="Visa">
+      <img src="https://via.placeholder.com/40x25?text=M" alt="Mastercard">
+      <img src="https://via.placeholder.com/40x25?text=A" alt="Amex">
+      <img src="https://via.placeholder.com/40x25?text=P" alt="Paypal">
+    </div>
+  </div>
 </footer>
 
 <script>
-  const stripe = Stripe('YOUR_PUBLISHABLE_STRIPE_KEY'); // Replace with your Stripe public key
+  // Overlay toggles
+  const accountBtn = document.getElementById('account-btn');
+  const accountOverlay = document.getElementById('account-overlay');
+  const closeAccount = document.getElementById('close-account');
 
-  document.querySelectorAll('.buy-button').forEach(button => {
-    button.addEventListener('click', () => {
-      const sessionId = button.getAttribute('data-session-id');
-      stripe.redirectToCheckout({ sessionId });
-    });
-  });
+  accountBtn.addEventListener('click', ()=>accountOverlay.classList.add('active'));
+  closeAccount.addEventListener('click', ()=>accountOverlay.classList.remove('active'));
+
+  const cartBtn = document.getElementById('cart-btn');
+  const cartOverlay = document.getElementById('cart-overlay');
+  const closeCart = document.getElementById('close-cart');
+
+  cartBtn.addEventListener('click', ()=>cartOverlay.classList.add('active'));
+  closeCart.addEventListener('click', ()=>cartOverlay.classList.remove('active'));
 </script>
 
 </body>
