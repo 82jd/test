@@ -6,7 +6,6 @@
 <title>Hustle Ambition Store</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  /* Global Styles */
   body, html {
     margin: 0;
     padding: 0;
@@ -15,8 +14,9 @@
     color: #000;
     overflow-x: hidden;
   }
+
   a { text-decoration: none; color: inherit; }
-  button { cursor: pointer; }
+  button { cursor: pointer; border: none; background: none; }
 
   /* Header */
   header {
@@ -32,9 +32,23 @@
   }
   .logo { font-weight: 700; font-size: 1.5rem; }
   .nav-buttons { display: flex; gap: 1rem; align-items: center; }
-  .nav-buttons button { background: none; border: none; font-size: 1.2rem; }
 
-  /* Overlay Menus */
+  /* Hamburger-style buttons */
+  .hamburger-btn {
+    width: 25px;
+    height: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .hamburger-btn span {
+    display: block;
+    height: 3px;
+    background: #000;
+    border-radius: 2px;
+  }
+
+  /* Account Overlay */
   .overlay {
     position: fixed;
     top: 0; left: 0;
@@ -51,7 +65,6 @@
   .overlay .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
   .overlay .overlay-header .logo { font-size: 1.5rem; font-weight: 700; }
   .overlay button.close-btn { font-size: 1.5rem; background: none; border: none; cursor: pointer; }
-
   .overlay nav { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 2rem; }
   .overlay nav a { font-weight: 600; font-size: 1.1rem; }
 
@@ -110,13 +123,33 @@
     border-top: 2px solid #000;
     margin-top: 2rem;
   }
-  .payment-icons img { height: 25px; margin-left: 0.5rem; }
 
-  /* Cart Overlay */
-  .cart-overlay { display: flex; flex-direction: column; }
-  .cart-items { flex: 1; overflow-y: auto; margin-bottom: 1rem; }
-  .cart-item { display: flex; justify-content: space-between; margin-bottom: 1rem; }
-  .cart-item p { margin: 0; }
+  /* Cart Dropdown */
+  .cart-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 2rem;
+    width: 250px;
+    background: #000;
+    color: #fff;
+    border-radius: 4px;
+    display: none;
+    flex-direction: column;
+    padding: 1rem;
+    z-index: 1001;
+  }
+  .cart-dropdown.active { display: flex; }
+  .cart-dropdown h3 { margin-top: 0; font-size: 1.2rem; }
+  .cart-item { display: flex; justify-content: space-between; margin: 0.5rem 0; }
+  .cart-dropdown button {
+    margin-top: 0.5rem;
+    background: #fff;
+    color: #000;
+    font-weight: bold;
+    border-radius: 4px;
+    padding: 0.5rem;
+  }
+
 </style>
 </head>
 <body>
@@ -124,9 +157,15 @@
 <header>
   <div class="logo">Hustle Ambition</div>
   <div class="nav-buttons">
-    <button id="search-btn">🔍</button>
-    <button id="cart-btn">🛒</button>
-    <button id="account-btn">☰</button>
+    <button class="hamburger-btn" id="search-btn">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="hamburger-btn" id="cart-btn">
+      <span></span><span></span><span></span>
+    </button>
+    <button class="hamburger-btn" id="account-btn">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
 
@@ -148,67 +187,22 @@
       <option value="JPY">JPY</option>
     </select>
   </div>
-  <a class="instagram-button" href="https://www.instagram.com/h" target="_blank">
+  <a class="instagram-button" href="https://www.instagram.com/hustleambition.ap" target="_blank">
     <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 190.5c-41.4 0-75.1-33.7-75.1-75.1s33.7-75.1 75.1-75.1 75.1 33.7 75.1 75.1-33.7 75.1-75.1 75.1zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-.1-54.3-44.2-98.3-98.5-98.5H98.5C44.2 65.9.1 110 0 164.3v183.4c.1 54.3 44.2 98.3 98.5 98.5h183.4c54.3-.1 98.4-44.2 98.5-98.5V164.3zM398.8 347c-.1 41.3-33.6 74.8-74.9 74.9H124.1c-41.3-.1-74.8-33.6-74.9-74.9V164.1c.1-41.3 33.6-74.8 74.9-74.9h199.8c41.3.1 74.8 33.6 74.9 74.9V347z"/></svg>
     Instagram
   </a>
 </div>
 
-<!-- Cart Overlay -->
-<div class="overlay" id="cart-overlay">
-  <div class="overlay-header">
-    <div class="logo">Cart</div>
-    <button class="close-btn" id="close-cart">✖</button>
+<!-- Cart Dropdown -->
+<div class="cart-dropdown" id="cart-dropdown">
+  <h3>Cart</h3>
+  <div class="cart-item">
+    <p>Hoodie</p>
+    <p>$70</p>
   </div>
-  <div class="cart-items">
-    <div class="cart-item">
-      <p>Hoodie</p>
-      <p>$70</p>
-    </div>
-  </div>
-  <button class="buy-button" onclick="window.location.href='hustleambitoon.shop/products/hoodie'">Checkout</button>
+  <button onclick="window.location.href='hustleambitoon.shop/products/hoodie'">Checkout</button>
 </div>
 
 <main>
   <!-- Product Example -->
-  <div class="product-card">
-    <img src="https://via.placeholder.com/300x300.png?text=Hoodie" alt="Hoodie">
-    <p>$70</p>
-    <a href="hustleambitoon.shop/products/hoodie">View Product</a>
-  </div>
-</main>
-
-<footer>
-  <div>© 2025 HUSTLE AMBITION</div>
-  <div style="display:flex; align-items:center; gap:1rem;">
-    <a class="instagram-button" href="https://www.instagram.com/h" target="_blank">
-      <svg viewBox="0 0 448 512"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9S160.5 370.8 224.1 370.8 339 319.5 339 255.9 287.7 141 224.1 141zm0 190.5c-41.4 0-75.1-33.7-75.1-75.1s33.7-75.1 75.1-75.1 75.1 33.7 75.1 75.1-33.7 75.1-75.1 75.1zm146.4-194.3c0 14.9-12 26.9-26.9 26.9s-26.9-12-26.9-26.9 12-26.9 26.9-26.9 26.9 12 26.9 26.9zm76.1 27.2c-.1-54.3-44.2-98.3-98.5-98.5H98.5C44.2 65.9.1 110 0 164.3v183.4c.1 54.3 44.2 98.3 98.5 98.5h183.4c54.3-.1 98.4-44.2 98.5-98.5V164.3zM398.8 347c-.1 41.3-33.6 74.8-74.9 74.9H124.1c-41.3-.1-74.8-33.6-74.9-74.9V164.1c.1-41.3 33.6-74.8 74.9-74.9h199.8c41.3.1 74.8 33.6 74.9 74.9V347z"/></svg>
-    </a>
-    <div class="payment-icons">
-      <img src="https://via.placeholder.com/40x25?text=V" alt="Visa">
-      <img src="https://via.placeholder.com/40x25?text=M" alt="Mastercard">
-      <img src="https://via.placeholder.com/40x25?text=A" alt="Amex">
-      <img src="https://via.placeholder.com/40x25?text=P" alt="Paypal">
-    </div>
-  </div>
-</footer>
-
-<script>
-  // Overlay toggles
-  const accountBtn = document.getElementById('account-btn');
-  const accountOverlay = document.getElementById('account-overlay');
-  const closeAccount = document.getElementById('close-account');
-
-  accountBtn.addEventListener('click', ()=>accountOverlay.classList.add('active'));
-  closeAccount.addEventListener('click', ()=>accountOverlay.classList.remove('active'));
-
-  const cartBtn = document.getElementById('cart-btn');
-  const cartOverlay = document.getElementById('cart-overlay');
-  const closeCart = document.getElementById('close-cart');
-
-  cartBtn.addEventListener('click', ()=>cartOverlay.classList.add('active'));
-  closeCart.addEventListener('click', ()=>cartOverlay.classList.remove('active'));
-</script>
-
-</body>
-</html>
+  <div
